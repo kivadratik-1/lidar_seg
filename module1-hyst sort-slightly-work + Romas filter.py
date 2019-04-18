@@ -166,6 +166,10 @@ if __name__ == '__main__':
                                             )
 
     print(zero_ring_points)
+
+
+
+
     zero_ring_cloud = PointCloud()
     zero_ring_cloud.points = Vector3dVector(zero_ring_points)
     draw_geometries([zero_ring_cloud])
