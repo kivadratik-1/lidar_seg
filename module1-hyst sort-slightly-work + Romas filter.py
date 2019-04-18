@@ -7,7 +7,7 @@ import math
 from mpl_toolkits.mplot3d import Axes3D
 import numpy as np
 import numpy.linalg as la
-from svd_solve import svd, svd_solve
+#from svd_solve import svd, svd_solve
 from ransac import *
 import os
 import matplotlib
@@ -139,7 +139,7 @@ def filtering_by_rings(ring_points, n_ring):
 
 if __name__ == '__main__':
 
-    file = '4.pcd'
+    file = '9.pcd'
 
     print("Load a ply point cloud, print it, and render it")
     pcd = read_point_cloud('D:/Dropbox/Inno/Inno/roadedges/'+file)
@@ -148,7 +148,7 @@ if __name__ == '__main__':
 
 
     ## Part of Roma's code to detect rings:
-
+    ## 1) Разбираем облако точек на 16 лучей
 
     n_beams_filtered_cloud = PointCloud()
     filtered = []
@@ -156,37 +156,50 @@ if __name__ == '__main__':
         filtered = filtered + filtering_by_rings(cutoff_by_z(massive_of_separated_ring_points(find_n_circle(pcd),i), -1.3) , i)
     n_beams_filtered_cloud.points = Vector3dVector(filtered)
 
-    point_array_with_zero = np.insert(np.asarray(n_beams_filtered_cloud.points) , 0 , [0,0,0], axis=0)
-    e_set = PointCloud()
-    e_set.points = Vector3dVector(point_array_with_zero)
-    #draw_geometries([e_set])
 
+    zero_ring_points = filtering_by_rings(
+                            cutoff_by_z(
+                                massive_of_separated_ring_points(
+                                    find_n_circle(pcd),0
+                                                                ), -1.5
+                                        ) , 0
+                                            )
+
+    print(zero_ring_points)
+    zero_ring_cloud = PointCloud()
+    zero_ring_cloud.points = Vector3dVector(zero_ring_points)
+    draw_geometries([zero_ring_cloud])
+
+
+    ## 2) Добавляем в облако точку 0
+
+    point_array_with_zero = np.insert(np.asarray(n_beams_filtered_cloud.points) , 0 , [0,0,0], axis=0)
 
     b = point_array_with_zero
+
+    # RANSAC
+    ## Находим облако точек, лежащих в одной плоскости
 
     max_iterations = int(len(n_beams_filtered_cloud.points)/100)
     goal_inliers = len(n_beams_filtered_cloud.points)*0.8
 
-    # RANSAC
-    m, b, pp  = run_ransac(n_beams_filtered_cloud.points, estimate, lambda x, y: is_inlier(x, y, 0.03), len(n_beams_filtered_cloud.points), goal_inliers, max_iterations)
+    m, one_plane_points  = run_ransac(n_beams_filtered_cloud.points, estimate, lambda x, y: is_inlier(x, y, 0.03), len(n_beams_filtered_cloud.points), goal_inliers, max_iterations)
     a, b, c, d = m
     sdup_cloud = PointCloud()
-    sdup_cloud.points = Vector3dVector(pp)
+    sdup_cloud.points = Vector3dVector(one_plane_points)
     #draw_geometries([sdup_cloud])
-
     yup = []
-    fup =[]
     k_dot = 0
-    while k_dot < len(pp) - 1:
-        proizv = abs(pp[k_dot+1][0]-pp[k_dot][0])/abs(pp[k_dot+1][1]-pp[k_dot][1])
+    while k_dot < len(one_plane_points) - 1:
+        proizv = abs(one_plane_points[k_dot+1][0]-one_plane_points[k_dot][0])/abs(one_plane_points[k_dot+1][1]-one_plane_points[k_dot][1])
         if 0 < proizv <= 2:
-            yup.append(pp[k_dot])
+            yup.append(one_plane_points[k_dot])
         k_dot += 1
     yup_cloud = PointCloud()
     yup_cloud.points = Vector3dVector(yup)
-    pcd_tree = KDTreeFlann(yup_cloud)
+    pcd_tree = KDTreeFlann(sdup_cloud)
     dummy = []
-    for point_of in yup:
+    for point_of in one_plane_points:
         [k, idx, _] = pcd_tree.search_radius_vector_3d(point_of, 2.5)
         rt = 0
         if k > len(n_beams_filtered_cloud.points)*0.03:
@@ -196,7 +209,7 @@ if __name__ == '__main__':
     dummy_cloud.points = Vector3dVector(dummy)
     n_beams_filtered_cloud.paint_uniform_color([0.5, 0.5, 0.5])
     pcd.paint_uniform_color([0.5, 0.5, 0.5])
-    #draw_geometries([dummy_cloud , n_beams_filtered_cloud, pcd])
+    draw_geometries([dummy_cloud , n_beams_filtered_cloud, pcd])
     print("--- %s seconds ---" % (time.time() - start_time))
 
 
