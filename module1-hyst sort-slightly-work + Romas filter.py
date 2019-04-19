@@ -12,7 +12,12 @@ from ransac import *
 import os
 import matplotlib
 import time
+
+import scipy as sp
+import matplotlib.pyplot as plt
+
 start_time = time.time()
+
 
 def find_n_circle(point_cloud):
     ## Функция разбивает поинт клауд на 16 колец (n_beams), возвращает точки с id кольца
@@ -101,8 +106,8 @@ def filtering_by_rings(ring_points, n_ring):
     it = 0
     ring_points_1 = []
     while it+1 < len(ring_points):
-        first_proizv_dz_po_dy = math.sqrt((ring_points[it+1][2]-ring_points[it][2])**2) / math.sqrt((ring_points[it+1][0]-ring_points[it][0])**2)
-        first_proizv_dx_po_dy = math.sqrt((ring_points[it+1][0]-ring_points[it][0])**2) / math.sqrt((ring_points[it+1][1]-ring_points[it][1])**2)
+        first_proizv_dz_po_dy = math.sqrt((ring_points[it+1][2]-ring_points[it][2])**2) / (math.sqrt((ring_points[it+1][0]-ring_points[it][0])**2) + 0.00000001)
+        first_proizv_dx_po_dy = math.sqrt((ring_points[it+1][0]-ring_points[it][0])**2) / (math.sqrt((ring_points[it+1][1]-ring_points[it][1])**2) + 0.00000001)
         ra = math.sqrt((ring_points[it][0])**2+(ring_points[it][1])**2+(ring_points[it][2] -1.83 )**2)
         it +=1
         if n_ring == 0 :
@@ -133,17 +138,31 @@ def filtering_by_rings(ring_points, n_ring):
 
 
 
-
-
+def mnkGP(x,y):
+    d=1 # степень полинома
+    fp, residuals, rank, sv, rcond = sp.polyfit(x, y, d, full=True) # Модель
+    f = sp.poly1d(fp) # аппроксимирующая функция
+    print('Коэффициент -- a %s  '%round(fp[0],4))
+    print('Коэффициент-- b %s  '%round(fp[1],4))
+    #print('Коэффициент -- c %s  '%round(fp[2],4))
+    y1=[fp[0]*x[i]+fp[1] for i in range(0,len(x))] # значения функции a*x+b
+    so=round(sum([abs(y[i]-y1[i]) for i in range(0,len(x))])/(len(x)*abs(sum(y)))*100,4) # средняя ошибка
+    print('Average quadratic deviation '+str(so))
+    fx = sp.linspace(x[0], x[-1] + 1, len(x)) # можно установить вместо len(x) большее число для интерполяции
+    plt.plot(x, y, 'o', label='Original data', markersize=2)
+    plt.plot(fx, f(fx), linewidth=1)
+    plt.grid(True)
+    plt.show()
+    return fp[0] , fp[1] , so
 
 
 if __name__ == '__main__':
 
-    file = '7.pcd'
+    file = '4.pcd'
 
     print("Load a ply point cloud, print it, and render it")
     pcd = read_point_cloud('D:/Dropbox/Inno/Inno/roadedges/'+file)
-
+    draw_geometries([pcd])
 
 
 
@@ -154,25 +173,26 @@ if __name__ == '__main__':
     filtered = []
     for i in range(0,6):
         filtered = filtered + filtering_by_rings(cutoff_by_z(massive_of_separated_ring_points(find_n_circle(pcd),i), -1.3) , i)
+
     n_beams_filtered_cloud.points = Vector3dVector(filtered)
 
-
-    zero_ring_points = filtering_by_rings(
-                            cutoff_by_z(
-                                massive_of_separated_ring_points(
-                                    find_n_circle(pcd),0
-                                                                ), -1.5
-                                        ) , 0
-                                            )
-
-    #print(zero_ring_points)
-
-
-
-
+##
+##    zero_ring_points = filtering_by_rings(
+##                            cutoff_by_z(
+##                                massive_of_separated_ring_points(
+##                                    find_n_circle(pcd),0
+##                                                                ), -1.5
+##                                        ) , 0
+##                                            )
+##
+##    #print(zero_ring_points)
+##
+##
+##
+##
     zero_ring_cloud = PointCloud()
-    zero_ring_cloud.points = Vector3dVector(zero_ring_points)
-    #draw_geometries([zero_ring_cloud])
+    zero_ring_cloud.points = Vector3dVector(filtered)
+    draw_geometries([zero_ring_cloud])
 
 
     ## 2) Добавляем в облако точку 0
@@ -211,26 +231,52 @@ if __name__ == '__main__':
     #print(dummy)
     dummy_cloud = PointCloud()
     dummy_cloud.points = Vector3dVector(dummy)
-    n_beams_filtered_cloud.paint_uniform_color([0.5, 0.5, 0.5])
+    n_beams_filtered_cloud.paint_uniform_color([0.7, 0.7, 0.7])
     pcd.paint_uniform_color([0.5, 0.5, 0.5])
    #draw_geometries([dummy_cloud])
 
+    lines_set = PointCloud()
+    lines_li = []
+    edge_point_array_left = []
+    edge_point_array_right = []
+    for i in range(0,5):
+        super_cloud = massive_of_separated_ring_points(find_n_circle(dummy_cloud),i)
+        mini = np.argmin((super_cloud), axis=0)[1]
+        maxi = np.argmax((super_cloud), axis=0)[1]
+        #print (mini)
+        #print (maxi)
+        edge_point_array_left.append(super_cloud[mini])
+        edge_point_array_right.append(super_cloud[maxi])
+        points_po = super_cloud
+        lines = [[mini, maxi]]
+        lines_li.append(lines)
+        shirina_dorogi = math.sqrt((super_cloud[mini][0] - super_cloud[maxi][0])**2+(super_cloud[mini][1] - super_cloud[maxi][1])**2+(super_cloud[mini][2] - super_cloud[maxi][2])**2)
+        print (shirina_dorogi)
+
+    a_left , b_left, so_l = mnkGP(
+            list(np.asarray(edge_point_array_left)[:,0]),
+            list(np.asarray(edge_point_array_left)[:,1])
+            )
+    a_right , b_right, so_r = mnkGP(
+            list(np.asarray(edge_point_array_right)[:,0]),
+            list(np.asarray(edge_point_array_right)[:,1])
+            )
+    points_su_left =[]
+    points_su_right =[]
+    for d_x in range ( 0 , 200 ):
+        line_1_x = d_x * 0.1
+        points_su_left.append( [ line_1_x , line_1_x*a_left + b_left, -1.83 ] )
+        points_su_right.append( [ line_1_x , line_1_x*a_right + b_right, -1.83 ] )
 
 
-    super_cloud = massive_of_separated_ring_points(find_n_circle(dummy_cloud),0)
-    mini = np.argmin((super_cloud), axis=0)[1]
-    maxi = np.argmax((super_cloud), axis=0)[1]
-    print (mini)
-    print (maxi)
-    lines_set = LineSet()
-    points_po = super_cloud
-    lines = [[mini, maxi]]
-    shirina_dorogi = math.sqrt((super_cloud[mini][0] - super_cloud[maxi][0])**2+(super_cloud[mini][1] - super_cloud[maxi][1])**2+(super_cloud[mini][2] - super_cloud[maxi][2])**2)
-    print (shirina_dorogi)
+
+
+    print(list(np.asarray(edge_point_array_left)[:,0]))
     #dummy_cloud.points = Vector3dVector(super_cloud)
-    lines_set.points = Vector3dVector(points_po)
-    lines_set.lines = Vector2iVector(lines)
-    draw_geometries([ dummy_cloud, pcd , lines_set])
+    lines_set.points = Vector3dVector(edge_point_array_left + edge_point_array_right + points_su_left + points_su_right )
+    lines_set.paint_uniform_color([1, 0, 0])
+    #lines_set.lines = Vector2iVector(lines)
+    draw_geometries([ lines_set, pcd])
     print("--- %s seconds ---" % (time.time() - start_time))
 
 
