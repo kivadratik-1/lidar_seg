@@ -139,7 +139,7 @@ def filtering_by_rings(ring_points, n_ring):
 
 if __name__ == '__main__':
 
-    file = '9.pcd'
+    file = '7.pcd'
 
     print("Load a ply point cloud, print it, and render it")
     pcd = read_point_cloud('D:/Dropbox/Inno/Inno/roadedges/'+file)
@@ -165,14 +165,14 @@ if __name__ == '__main__':
                                         ) , 0
                                             )
 
-    print(zero_ring_points)
+    #print(zero_ring_points)
 
 
 
 
     zero_ring_cloud = PointCloud()
     zero_ring_cloud.points = Vector3dVector(zero_ring_points)
-    draw_geometries([zero_ring_cloud])
+    #draw_geometries([zero_ring_cloud])
 
 
     ## 2) Добавляем в облако точку 0
@@ -213,7 +213,24 @@ if __name__ == '__main__':
     dummy_cloud.points = Vector3dVector(dummy)
     n_beams_filtered_cloud.paint_uniform_color([0.5, 0.5, 0.5])
     pcd.paint_uniform_color([0.5, 0.5, 0.5])
-    draw_geometries([dummy_cloud , n_beams_filtered_cloud, pcd])
+   #draw_geometries([dummy_cloud])
+
+
+
+    super_cloud = massive_of_separated_ring_points(find_n_circle(dummy_cloud),0)
+    mini = np.argmin((super_cloud), axis=0)[1]
+    maxi = np.argmax((super_cloud), axis=0)[1]
+    print (mini)
+    print (maxi)
+    lines_set = LineSet()
+    points_po = super_cloud
+    lines = [[mini, maxi]]
+    shirina_dorogi = math.sqrt((super_cloud[mini][0] - super_cloud[maxi][0])**2+(super_cloud[mini][1] - super_cloud[maxi][1])**2+(super_cloud[mini][2] - super_cloud[maxi][2])**2)
+    print (shirina_dorogi)
+    #dummy_cloud.points = Vector3dVector(super_cloud)
+    lines_set.points = Vector3dVector(points_po)
+    lines_set.lines = Vector2iVector(lines)
+    draw_geometries([ dummy_cloud, pcd , lines_set])
     print("--- %s seconds ---" % (time.time() - start_time))
 
 
