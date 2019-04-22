@@ -149,20 +149,20 @@ def mnkGP(x,y):
     so=round(sum([abs(y[i]-y1[i]) for i in range(0,len(x))])/(len(x)*abs(sum(y)))*100,4) # средняя ошибка
     print('Average quadratic deviation '+str(so))
     fx = sp.linspace(x[0], x[-1] + 1, len(x)) # можно установить вместо len(x) большее число для интерполяции
-    plt.plot(x, y, 'o', label='Original data', markersize=2)
-    plt.plot(fx, f(fx), linewidth=1)
-    plt.grid(True)
-    plt.show()
+##    plt.plot(x, y, 'o', label='Original data', markersize=2)
+##    plt.plot(fx, f(fx), linewidth=1)
+##    plt.grid(True)
+##    plt.show()
     return fp[0] , fp[1] , so
 
 
 if __name__ == '__main__':
 
-    file = '4.pcd'
+    file = '3.pcd'
 
     print("Load a ply point cloud, print it, and render it")
     pcd = read_point_cloud('D:/Dropbox/Inno/Inno/roadedges/'+file)
-    draw_geometries([pcd])
+    #draw_geometries([pcd])
 
 
 
@@ -192,7 +192,7 @@ if __name__ == '__main__':
 ##
     zero_ring_cloud = PointCloud()
     zero_ring_cloud.points = Vector3dVector(filtered)
-    draw_geometries([zero_ring_cloud])
+    #draw_geometries([zero_ring_cloud])
 
 
     ## 2) Добавляем в облако точку 0
@@ -276,7 +276,7 @@ if __name__ == '__main__':
     lines_set.points = Vector3dVector(edge_point_array_left + edge_point_array_right + points_su_left + points_su_right )
     lines_set.paint_uniform_color([1, 0, 0])
     #lines_set.lines = Vector2iVector(lines)
-    draw_geometries([ lines_set, pcd])
+    draw_geometries([ lines_set, yup_cloud, pcd])
     print("--- %s seconds ---" % (time.time() - start_time))
 
 
