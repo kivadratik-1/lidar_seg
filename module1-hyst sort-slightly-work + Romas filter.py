@@ -158,10 +158,10 @@ def mnkGP(x,y):
 
 if __name__ == '__main__':
 
-    file = '3.pcd'
+    file = '4.pcd'
 
     print("Load a ply point cloud, print it, and render it")
-    pcd = read_point_cloud('D:/Dropbox/Inno/Inno/roadedges/'+file)
+    pcd = read_point_cloud('roadedges/'+file)
     #draw_geometries([pcd])
 
 
@@ -251,7 +251,7 @@ if __name__ == '__main__':
         lines = [[mini, maxi]]
         lines_li.append(lines)
         shirina_dorogi = math.sqrt((super_cloud[mini][0] - super_cloud[maxi][0])**2+(super_cloud[mini][1] - super_cloud[maxi][1])**2+(super_cloud[mini][2] - super_cloud[maxi][2])**2)
-        print (shirina_dorogi)
+        #print (shirina_dorogi)
 
     a_left , b_left, so_l = mnkGP(
             list(np.asarray(edge_point_array_left)[:,0]),
@@ -261,23 +261,36 @@ if __name__ == '__main__':
             list(np.asarray(edge_point_array_right)[:,0]),
             list(np.asarray(edge_point_array_right)[:,1])
             )
-    points_su_left =[]
-    points_su_right =[]
-    for d_x in range ( 0 , 200 ):
-        line_1_x = d_x * 0.1
-        points_su_left.append( [ line_1_x , line_1_x*a_left + b_left, -1.83 ] )
-        points_su_right.append( [ line_1_x , line_1_x*a_right + b_right, -1.83 ] )
+    print ( 'ABS', abs((a_left) - (a_right)))
+    print (list(np.asarray(edge_point_array_left)[:,0]))
+    print (list(np.asarray(edge_point_array_left)[:,1]))
+
+    print ('w', list(np.asarray(edge_point_array_right)[:,0]))
+    print ('w', list(np.asarray(edge_point_array_right)[:,1]))
+
+
+    if ( a_right != 0 ) and  ( 0 < abs((a_left) - (a_right)) < 0.8 ) and ( abs(so_l) < 1.5 ) and ( abs (so_r) < 1.5 ):
+
+        points_su_left =[]
+        points_su_right =[]
+        for d_x in range ( 0 , 200 ):
+            line_1_x = d_x * 0.1
+            points_su_left.append( [ line_1_x , line_1_x*a_left + b_left, -1.83 ] )
+            points_su_right.append( [ line_1_x , line_1_x*a_right + b_right, -1.83 ] )
 
 
 
 
-    print(list(np.asarray(edge_point_array_left)[:,0]))
-    #dummy_cloud.points = Vector3dVector(super_cloud)
-    lines_set.points = Vector3dVector(edge_point_array_left + edge_point_array_right + points_su_left + points_su_right )
-    lines_set.paint_uniform_color([1, 0, 0])
-    #lines_set.lines = Vector2iVector(lines)
-    draw_geometries([ lines_set, yup_cloud, pcd])
-    print("--- %s seconds ---" % (time.time() - start_time))
+        print(list(np.asarray(edge_point_array_left)[:,0]))
+        #dummy_cloud.points = Vector3dVector(super_cloud)
+        lines_set.points = Vector3dVector(edge_point_array_left + edge_point_array_right + points_su_left + points_su_right )
+        lines_set.paint_uniform_color([1, 0, 0])
+        #lines_set.lines = Vector2iVector(lines)
+        draw_geometries([ lines_set, yup_cloud, pcd])
+        print("--- %s seconds ---" % (time.time() - start_time))
+    else:
+        print('There is no road')
+        draw_geometries([ yup_cloud, pcd])
 
 
 

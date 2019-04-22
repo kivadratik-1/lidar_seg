@@ -6,6 +6,7 @@ import math
 def mnkGP(x,y):
               d=2 # степень полинома
               fp, residuals, rank, sv, rcond = sp.polyfit(x, y, d, full=True) # Модель
+              print (fp)
               f = sp.poly1d(fp) # аппроксимирующая функция
               print('Коэффициент -- a %s  '%round(fp[0],4))
               print('Коэффициент-- b %s  '%round(fp[1],4))
@@ -21,6 +22,7 @@ def mnkGP(x,y):
               plt.plot(fx, f(fx), linewidth=1)
               plt.grid(True)
               plt.show()
+              print (round(5.72485462453154,4))
 
 x=[5.72452974319458, 6.976823329925537, 8.304901123046875, 9.659320831298828,
     12.242971420288086]
