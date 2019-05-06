@@ -12,7 +12,7 @@ from ransac import *
 import os
 import matplotlib
 import time
-
+import itertools
 import scipy as sp
 import matplotlib.pyplot as plt
 
@@ -142,8 +142,8 @@ def mnkGP(x,y):
     d=1 # степень полинома
     fp, residuals, rank, sv, rcond = sp.polyfit(x, y, d, full=True) # Модель
     f = sp.poly1d(fp) # аппроксимирующая функция
-    print('Коэффициент -- a %s  '%round(fp[0],4))
-    print('Коэффициент-- b %s  '%round(fp[1],4))
+    #print('Коэффициент -- a %s  '%round(fp[0],4))
+    #print('Коэффициент-- b %s  '%round(fp[1],4))
     #print('Коэффициент -- c %s  '%round(fp[2],4))
     y1=[fp[0]*x[i]+fp[1] for i in range(0,len(x))] # значения функции a*x+b
     so=round(sum([abs(y[i]-y1[i]) for i in range(0,len(x))])/(len(x)*abs(sum(y)))*100,4) # средняя ошибка
@@ -155,12 +155,36 @@ def mnkGP(x,y):
 ##    plt.show()
     return fp[0] , fp[1] , so
 
+def is_on_radius(edge_points_array):
+    circule_center_points_array = []
+    comb = itertools.combinations(edge_points_array, 3)
+    for e in comb:
+        #print (e)
+        A = e[0]
+        B = e[1]
+        C = e[2]
+
+        a = np.linalg.norm(C - B)
+        b = np.linalg.norm(C - A)
+        c = np.linalg.norm(B - A)
+
+        s = (a + b + c) / 2
+        R = a*b*c / 4 / np.sqrt(s * (s - a) * (s - b) * (s - c))
+        b1 = a*a * (b*b + c*c - a*a)
+        b2 = b*b * (a*a + c*c - b*b)
+        b3 = c*c * (a*a + b*b - c*c)
+        P = np.column_stack((A, B, C)).dot(np.hstack((b1, b2, b3)))
+        P /= b1 + b2 + b3
+        print(R)
+        circule_center_points_array.append(P)
+    return P
+
 
 if __name__ == '__main__':
 
     file = '4.pcd'
 
-    print("Load a ply point cloud, print it, and render it")
+    #print("Load a ply point cloud, print it, and render it")
     pcd = read_point_cloud('roadedges/'+file)
     #draw_geometries([pcd])
 
@@ -263,10 +287,12 @@ if __name__ == '__main__':
             )
     print ( 'ABS', abs((a_left) - (a_right)))
     print (list(np.asarray(edge_point_array_left)[:,0]))
+    left_cen = is_on_radius(edge_point_array_left)
+    right_cen = is_on_radius(edge_point_array_right)
     print (list(np.asarray(edge_point_array_left)[:,1]))
-
-    print ('w', list(np.asarray(edge_point_array_right)[:,0]))
-    print ('w', list(np.asarray(edge_point_array_right)[:,1]))
+##
+##    print ('w', list(np.asarray(edge_point_array_right)[:,0]))
+##    print ('w', list(np.asarray(edge_point_array_right)[:,1]))
 
 
     if ( a_right != 0 ) and  ( 0 < abs((a_left) - (a_right)) < 0.8 ) and ( abs(so_l) < 1.5 ) and ( abs (so_r) < 1.5 ):
@@ -281,17 +307,18 @@ if __name__ == '__main__':
 
 
 
-        print(list(np.asarray(edge_point_array_left)[:,0]))
+        #print(list(np.asarray(edge_point_array_left)[:,0]))
         #dummy_cloud.points = Vector3dVector(super_cloud)
         lines_set.points = Vector3dVector(edge_point_array_left + edge_point_array_right + points_su_left + points_su_right )
         lines_set.paint_uniform_color([1, 0, 0])
         #lines_set.lines = Vector2iVector(lines)
         draw_geometries([ lines_set, yup_cloud, pcd])
-        print("--- %s seconds ---" % (time.time() - start_time))
+        #print("--- %s seconds ---" % (time.time() - start_time))
     else:
-        print('There is no road')
-        draw_geometries([ yup_cloud, pcd])
-
+        #print('There is no road')
+        #draw_geometries([ yup_cloud, pcd])
+        pass
+    print("--- %s seconds ---" % (time.time() - start_time))
 
 
 
