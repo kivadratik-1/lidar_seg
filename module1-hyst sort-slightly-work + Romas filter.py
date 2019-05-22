@@ -26,7 +26,7 @@ def find_n_circle(point_cloud):
     count = len(point_cloud.points)
     separated_point_cloud = []
     scans_ids = []
-    n_beams = 16
+    n_beams = 32
     if (endOri - startOri > 3 * math.pi):
         endOri -= 2 * math.pi
     elif endOri - startOri < math.pi:
@@ -34,8 +34,10 @@ def find_n_circle(point_cloud):
     for one_point in point_cloud.points:
         #print(one_point)
         angle = math.atan(one_point[2] / math.sqrt(one_point[0] * one_point[0] + one_point[1] * one_point[1])) * 180 / math.pi
+        print(angle)
         scanID = 0
-        scanID = int((angle + 15) / 2 + 0.5)
+        scanID = int((angle + 25) / 2 + 0.5)
+        #print (scanID)
         scans_ids.append(scanID)
         separated_point_cloud.append([one_point, scanID])
     return separated_point_cloud
@@ -106,31 +108,64 @@ def filtering_by_rings(ring_points, n_ring):
     it = 0
     ring_points_1 = []
     while it+1 < len(ring_points):
-        first_proizv_dz_po_dy = math.sqrt((ring_points[it+1][2]-ring_points[it][2])**2) / (math.sqrt((ring_points[it+1][0]-ring_points[it][0])**2) + 0.00000001)
-        first_proizv_dx_po_dy = math.sqrt((ring_points[it+1][0]-ring_points[it][0])**2) / (math.sqrt((ring_points[it+1][1]-ring_points[it][1])**2) + 0.00000001)
-        ra = math.sqrt((ring_points[it][0])**2+(ring_points[it][1])**2+(ring_points[it][2] -1.83 )**2)
+##        first_proizv_dz_po_dy = math.sqrt((ring_points[it+1][2]-ring_points[it][2])**2) / (math.sqrt((ring_points[it+1][0]-ring_points[it][0])**2) + 0.00000001)
+##        first_proizv_dx_po_dy = math.sqrt((ring_points[it+1][0]-ring_points[it][0])**2) / (math.sqrt((ring_points[it+1][1]-ring_points[it][1])**2) + 0.00000001)
+##        ra = math.sqrt((ring_points[it][0])**2+(ring_points[it][1])**2+(ring_points[it][2] -1.83 )**2)
         it +=1
         if n_ring == 0 :
-            if (6.5 < ra < 9.) and (first_proizv_dx_po_dy < 1) and (first_proizv_dz_po_dy < 0.5 ):
+            #if (0.1 < ra < 1.) : # and (first_proizv_dx_po_dy < 1) and (first_proizv_dz_po_dy < 0.5 ):
                 ring_points_1.append(ring_points[it])
         elif n_ring == 1 :
-            if (7.8 < ra < 9.5) and (first_proizv_dx_po_dy < 1) and (first_proizv_dz_po_dy < 0.5 ):
+            #if (0.2 < ra < 9.5) : # and (first_proizv_dx_po_dy < 1) and (first_proizv_dz_po_dy < 0.5 ):
                 ring_points_1.append(ring_points[it])
         elif n_ring == 2 :
-            if (7.8 < ra < 10.5) and (first_proizv_dx_po_dy < 1) and (first_proizv_dz_po_dy < 0.5 ):
+            #if (0.8 < ra < 120.5) : # and (first_proizv_dx_po_dy < 1) and (first_proizv_dz_po_dy < 0.5 ):
                 ring_points_1.append(ring_points[it])
         elif n_ring == 3 :
-            if (7.8 < ra < 12.5) and (first_proizv_dx_po_dy < 1) and (first_proizv_dz_po_dy < 0.5 ):
+            #if (0.8 < ra < 122.5) : # and (first_proizv_dx_po_dy < 1) and (first_proizv_dz_po_dy < 0.5 ):
                 ring_points_1.append(ring_points[it])
         elif n_ring == 4 :
-            if (11.5 < ra < 14.5) and (first_proizv_dx_po_dy < 1) and (first_proizv_dz_po_dy < 0.5 ):
+            #if (0.5 < ra < 142.5) : # and (first_proizv_dx_po_dy < 1) and (first_proizv_dz_po_dy < 0.5 ):
                 ring_points_1.append(ring_points[it])
-##        elif n_ring == 5 :
-##            if (17 < ra < 21) and (first_proizv_dx_po_dy < 1) and (first_proizv_dz_po_dy < 0.5 ):
-##                ring_points_1.append(ring_points[it])
-##        elif n_ring == 6 :
-##            if (7.8 < ra < 20) and (first_proizv_dx_po_dy < 1) and (first_proizv_dz_po_dy < 0.5 ):
-##                ring_points_1.append(ring_points[it])
+        elif n_ring == 5 :
+            #if (1 < ra < 212) : # and (first_proizv_dx_po_dy < 1) and (first_proizv_dz_po_dy < 0.5 ):
+                ring_points_1.append(ring_points[it])
+        elif n_ring == 6 :
+           # if (1 < ra < 202) : # and (first_proizv_dx_po_dy < 1) and (first_proizv_dz_po_dy < 0.5 ):
+                ring_points_1.append(ring_points[it])
+        elif n_ring == 7 :
+            #if (1 < ra < 202) : # and (first_proizv_dx_po_dy < 1) and (first_proizv_dz_po_dy < 0.5 ):
+                ring_points_1.append(ring_points[it])
+        elif n_ring == 8 :
+            #if (1 < ra < 202) : # and (first_proizv_dx_po_dy < 1) and (first_proizv_dz_po_dy < 0.5 ):
+                ring_points_1.append(ring_points[it])
+        elif n_ring == 9 :
+            #if (1 < ra < 212) : # and (first_proizv_dx_po_dy < 1) and (first_proizv_dz_po_dy < 0.5 ):
+                ring_points_1.append(ring_points[it])
+        elif n_ring == 10 :
+            #if (1 < ra < 202) : # and (first_proizv_dx_po_dy < 1) and (first_proizv_dz_po_dy < 0.5 ):
+                ring_points_1.append(ring_points[it])
+        elif n_ring == 11 :
+            #if (1 < ra < 202) : # and (first_proizv_dx_po_dy < 1) and (first_proizv_dz_po_dy < 0.5 ):
+                ring_points_1.append(ring_points[it])
+        elif n_ring == 12 :
+            #if (1 < ra < 202) : # and (first_proizv_dx_po_dy < 1) and (first_proizv_dz_po_dy < 0.5 ):
+                ring_points_1.append(ring_points[it])
+        elif n_ring == 13 :
+            #if (1 < ra < 202) : # and (first_proizv_dx_po_dy < 1) and (first_proizv_dz_po_dy < 0.5 ):
+                ring_points_1.append(ring_points[it])
+        elif n_ring == 14 :
+            #if (1 < ra < 212) : # and (first_proizv_dx_po_dy < 1) and (first_proizv_dz_po_dy < 0.5 ):
+                ring_points_1.append(ring_points[it])
+        elif n_ring == 15 :
+            #if (1 < ra < 202) : # and (first_proizv_dx_po_dy < 1) and (first_proizv_dz_po_dy < 0.5 ):
+                ring_points_1.append(ring_points[it])
+        elif n_ring == 16 :
+            #if (1 < ra < 202) : # and (first_proizv_dx_po_dy < 1) and (first_proizv_dz_po_dy < 0.5 ):
+                ring_points_1.append(ring_points[it])
+        elif n_ring == 17 :
+            #if (1 < ra < 202) : # and (first_proizv_dx_po_dy < 1) and (first_proizv_dz_po_dy < 0.5 ):
+                ring_points_1.append(ring_points[it])
         else:
             pass
     #print (len(ring_points_1))
@@ -158,7 +193,7 @@ def mnkGP(x,y):
 
 if __name__ == '__main__':
 
-    file = '4.pcd'
+    file = '31-1.pcd'
 
     print("Load a ply point cloud, print it, and render it")
     pcd = read_point_cloud('roadedges/'+file)
@@ -171,10 +206,13 @@ if __name__ == '__main__':
 
     n_beams_filtered_cloud = PointCloud()
     filtered = []
-    for i in range(0,6):
-        filtered = filtered + filtering_by_rings(cutoff_by_z(massive_of_separated_ring_points(find_n_circle(pcd),i), -1.3) , i)
+    for i in range(2,13):
+        #print(find_n_circle(pcd))
+        #filtered = filtered + filtering_by_rings(cutoff_by_z(massive_of_separated_ring_points(find_n_circle(pcd),i), -1.3) , i)
+        filtered = filtered + massive_of_separated_ring_points(find_n_circle(pcd),12)
 
     n_beams_filtered_cloud.points = Vector3dVector(filtered)
+
 
 ##
 ##    zero_ring_points = filtering_by_rings(
@@ -192,7 +230,7 @@ if __name__ == '__main__':
 ##
     zero_ring_cloud = PointCloud()
     zero_ring_cloud.points = Vector3dVector(filtered)
-    #draw_geometries([zero_ring_cloud])
+    draw_geometries([zero_ring_cloud])
 
 
     ## 2) Добавляем в облако точку 0
