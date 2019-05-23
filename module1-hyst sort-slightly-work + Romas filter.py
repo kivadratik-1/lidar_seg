@@ -18,6 +18,9 @@ import matplotlib.pyplot as plt
 
 start_time = time.time()
 
+raw_ang_tab = [ -25 , -1 , -1.667 , -15.639 , -11.31 , 0 , -.667 , -8.843 , -7.254 , 0.333 , -0.333 , -6.148, -5.333, 1.333, 0.667, -4, -4.667, 1.667, 1, -3.667, -3.333, 3.333, 2.333, -2.667, -3, 7, 4.667, -2.333, -2, 15, 10.333, -1.333 ]
+angle_tab = sorted(raw_ang_tab)
+print(angle_tab)
 
 def find_n_circle(point_cloud):
     ## Функция разбивает поинт клауд на 16 колец (n_beams), возвращает точки с id кольца
@@ -31,12 +34,24 @@ def find_n_circle(point_cloud):
         endOri -= 2 * math.pi
     elif endOri - startOri < math.pi:
         endOri += 2 * math.pi
+    #print(startOri , endOri )
     for one_point in point_cloud.points:
         #print(one_point)
         angle = math.atan(one_point[2] / math.sqrt(one_point[0] * one_point[0] + one_point[1] * one_point[1])) * 180 / math.pi
-        print(angle)
+##        print(angle)
+
         scanID = 0
-        scanID = int((angle + 25) / 2 + 0.5)
+        #scanID = int((angle + 25) / 2 + 0.5)
+        ih = 0
+        #print(zu)
+
+        while True:
+            ih += 1
+            zu = abs(angle_tab[ih - 1]) - abs(angle)
+            if -0.1 < zu < 0.1:
+                scanID = ih - 1
+                break
+
         #print (scanID)
         scans_ids.append(scanID)
         separated_point_cloud.append([one_point, scanID])
@@ -108,9 +123,9 @@ def filtering_by_rings(ring_points, n_ring):
     it = 0
     ring_points_1 = []
     while it+1 < len(ring_points):
-##        first_proizv_dz_po_dy = math.sqrt((ring_points[it+1][2]-ring_points[it][2])**2) / (math.sqrt((ring_points[it+1][0]-ring_points[it][0])**2) + 0.00000001)
-##        first_proizv_dx_po_dy = math.sqrt((ring_points[it+1][0]-ring_points[it][0])**2) / (math.sqrt((ring_points[it+1][1]-ring_points[it][1])**2) + 0.00000001)
-##        ra = math.sqrt((ring_points[it][0])**2+(ring_points[it][1])**2+(ring_points[it][2] -1.83 )**2)
+        first_proizv_dz_po_dy = math.sqrt((ring_points[it+1][2]-ring_points[it][2])**2) / (math.sqrt((ring_points[it+1][0]-ring_points[it][0])**2) + 0.00000001)
+        first_proizv_dx_po_dy = math.sqrt((ring_points[it+1][0]-ring_points[it][0])**2) / (math.sqrt((ring_points[it+1][1]-ring_points[it][1])**2) + 0.00000001)
+        ra = math.sqrt((ring_points[it][0])**2+(ring_points[it][1])**2+(ring_points[it][2] -1.83 )**2)
         it +=1
         if n_ring == 0 :
             #if (0.1 < ra < 1.) : # and (first_proizv_dx_po_dy < 1) and (first_proizv_dz_po_dy < 0.5 ):
@@ -206,10 +221,11 @@ if __name__ == '__main__':
 
     n_beams_filtered_cloud = PointCloud()
     filtered = []
-    for i in range(2,13):
+    for i in range(2,15):
         #print(find_n_circle(pcd))
-        #filtered = filtered + filtering_by_rings(cutoff_by_z(massive_of_separated_ring_points(find_n_circle(pcd),i), -1.3) , i)
-        filtered = filtered + massive_of_separated_ring_points(find_n_circle(pcd),12)
+        #filtered = filtered + filtering_by_rings(cutoff_by_z(massive_of_separated_ring_points(find_n_circle(pcd),i), -1.0) , i)
+        filtered = filtered + filtering_by_rings(cutoff_by_z(massive_of_separated_ring_points(find_n_circle(pcd),i), -0.5) , i)
+        #filtered = filtered + massive_of_separated_ring_points(find_n_circle(pcd),i)
 
     n_beams_filtered_cloud.points = Vector3dVector(filtered)
 
