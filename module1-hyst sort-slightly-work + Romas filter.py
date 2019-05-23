@@ -20,7 +20,6 @@ start_time = time.time()
 
 raw_ang_tab = [ -25 , -1 , -1.667 , -15.639 , -11.31 , 0 , -.667 , -8.843 , -7.254 , 0.333 , -0.333 , -6.148, -5.333, 1.333, 0.667, -4, -4.667, 1.667, 1, -3.667, -3.333, 3.333, 2.333, -2.667, -3, 7, 4.667, -2.333, -2, 15, 10.333, -1.333 ]
 angle_tab = sorted(raw_ang_tab)
-print(angle_tab)
 
 def find_n_circle(point_cloud):
     ## Функция разбивает поинт клауд на 16 колец (n_beams), возвращает точки с id кольца
@@ -212,7 +211,8 @@ if __name__ == '__main__':
 
     print("Load a ply point cloud, print it, and render it")
     pcd = read_point_cloud('roadedges/'+file)
-    #draw_geometries([pcd])
+    pcd = voxel_down_sample(pcd, voxel_size = 0.05)
+    draw_geometries([pcd])
 
 
 
