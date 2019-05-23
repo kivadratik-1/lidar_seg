@@ -2,10 +2,8 @@ import numpy as np
 from numpy import array, abs as np_abs
 from open3d import *
 from numpy.fft import rfft, hfft, ihfft
-import matplotlib.pyplot as plt
 import math
 from mpl_toolkits.mplot3d import Axes3D
-import numpy as np
 import numpy.linalg as la
 #from svd_solve import svd, svd_solve
 from ransac import *
@@ -47,6 +45,7 @@ def find_n_circle(point_cloud):
         while True:
             ih += 1
             zu = abs(angle_tab[ih - 1]) - abs(angle)
+            #print(zu)
             if -0.1 < zu < 0.1:
                 scanID = ih - 1
                 break
@@ -211,8 +210,8 @@ if __name__ == '__main__':
 
     print("Load a ply point cloud, print it, and render it")
     pcd = read_point_cloud('roadedges/'+file)
-    pcd = voxel_down_sample(pcd, voxel_size = 0.05)
-    draw_geometries([pcd])
+    #pcd = voxel_down_sample(pcd, voxel_size = 0.05)
+    #draw_geometries([pcd])
 
 
 
@@ -246,6 +245,7 @@ if __name__ == '__main__':
 ##
     zero_ring_cloud = PointCloud()
     zero_ring_cloud.points = Vector3dVector(filtered)
+    zero_ring_cloud = voxel_down_sample(zero_ring_cloud, voxel_size = 0.05)
     draw_geometries([zero_ring_cloud])
 
 
@@ -259,6 +259,7 @@ if __name__ == '__main__':
     ## Находим облако точек, лежащих в одной плоскости
 
     max_iterations = int(len(n_beams_filtered_cloud.points)/100)
+    #max_iterations = 10
     goal_inliers = len(n_beams_filtered_cloud.points)*0.8
 
     m, one_plane_points  = run_ransac(n_beams_filtered_cloud.points, estimate, lambda x, y: is_inlier(x, y, 0.03), len(n_beams_filtered_cloud.points), goal_inliers, max_iterations)
@@ -287,13 +288,13 @@ if __name__ == '__main__':
     dummy_cloud.points = Vector3dVector(dummy)
     n_beams_filtered_cloud.paint_uniform_color([0.7, 0.7, 0.7])
     pcd.paint_uniform_color([0.5, 0.5, 0.5])
-   #draw_geometries([dummy_cloud])
+    draw_geometries([dummy_cloud])
 
     lines_set = PointCloud()
     lines_li = []
     edge_point_array_left = []
     edge_point_array_right = []
-    for i in range(0,5):
+    for i in range(2,15):
         super_cloud = massive_of_separated_ring_points(find_n_circle(dummy_cloud),i)
         mini = np.argmin((super_cloud), axis=0)[1]
         maxi = np.argmax((super_cloud), axis=0)[1]
