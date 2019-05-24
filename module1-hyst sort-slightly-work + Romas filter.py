@@ -55,12 +55,60 @@ def find_n_circle(point_cloud):
         separated_point_cloud.append([one_point, scanID])
     return separated_point_cloud
 
+def find_n_circle_1(point_cloud):
+    ## Функция разбивает поинт клауд на 16 колец (n_beams), возвращает точки с id кольца
+    startOri = -1 * math.atan2(point_cloud.points[0][1], point_cloud.points[0][0])
+    endOri = -1 * math.atan2(point_cloud.points[(len(point_cloud.points) - 1)][1], point_cloud.points[(len(point_cloud.points) - 1)][0]) + 2 * math.pi;
+    count = len(point_cloud.points)
+    separated_point_cloud = []
+    scans_ids = []
+    n_beams = 32
+    if (endOri - startOri > 3 * math.pi):
+        endOri -= 2 * math.pi
+    elif endOri - startOri < math.pi:
+        endOri += 2 * math.pi
+    #print(startOri , endOri )
+    for one_point in point_cloud.points:
+        #print(one_point)
+        angle = math.atan(one_point[2] / math.sqrt(one_point[0] * one_point[0] + one_point[1] * one_point[1])) * 180 / math.pi
+        print(angle)
+
+        scanID = 0
+        #scanID = int((angle + 25) / 2 + 0.5)
+        ih = 0
+        #print(zu)
+
+        while True:
+            ih += 1
+            zu = abs(angle_tab[ih - 1]) - abs(angle)
+            #print(zu)
+            if -0.1 < zu < 0.1:
+                scanID = ih - 1
+                break
+
+        #print (scanID)
+        scans_ids.append(scanID)
+        separated_point_cloud.append([one_point, scanID])
+    return separated_point_cloud
+
 def massive_of_separated_ring_points(point_cloud_labeled_points, N_ring):
     ## Функция фитьрует точки поинтклауда и возвращает только определенное кольцо
     ring_points = []
     for mas in point_cloud_labeled_points:
         if mas[1] == N_ring:
             ring_points.append(mas[0])
+    return ring_points
+
+def massive_of_separated_ring_points_1(point_cloud_labeled_points, N_ring):
+    ## Функция фитьрует точки поинтклауда и возвращает только определенное кольцо
+    print(N_ring)
+    ring_points = []
+    for mas in point_cloud_labeled_points:
+        if mas[1] == N_ring:
+            ring_points.append(mas[0])
+            print('adding point')
+        else:
+            pass
     return ring_points
 
 def find_hyst(array):
@@ -295,18 +343,18 @@ if __name__ == '__main__':
     edge_point_array_left = []
     edge_point_array_right = []
     for i in range(2,15):
-        super_cloud = massive_of_separated_ring_points(find_n_circle(dummy_cloud),i)
-        mini = np.argmin((super_cloud), axis=0)[1]
-        maxi = np.argmax((super_cloud), axis=0)[1]
-        #print (mini)
-        #print (maxi)
-        edge_point_array_left.append(super_cloud[mini])
-        edge_point_array_right.append(super_cloud[maxi])
-        points_po = super_cloud
-        lines = [[mini, maxi]]
-        lines_li.append(lines)
-        shirina_dorogi = math.sqrt((super_cloud[mini][0] - super_cloud[maxi][0])**2+(super_cloud[mini][1] - super_cloud[maxi][1])**2+(super_cloud[mini][2] - super_cloud[maxi][2])**2)
-        #print (shirina_dorogi)
+        super_cloud = massive_of_separated_ring_points_1(find_n_circle_1(dummy_cloud), i)
+    mini = np.argmin((super_cloud), axis=0)[1]
+    maxi = np.argmax((super_cloud), axis=0)[1]
+    #print (mini)
+    #print (maxi)
+    edge_point_array_left.append(super_cloud[mini])
+    edge_point_array_right.append(super_cloud[maxi])
+    points_po = super_cloud
+    lines = [[mini, maxi]]
+    lines_li.append(lines)
+    shirina_dorogi = math.sqrt((super_cloud[mini][0] - super_cloud[maxi][0])**2+(super_cloud[mini][1] - super_cloud[maxi][1])**2+(super_cloud[mini][2] - super_cloud[maxi][2])**2)
+    #print (shirina_dorogi)
 
     a_left , b_left, so_l = mnkGP(
             list(np.asarray(edge_point_array_left)[:,0]),
