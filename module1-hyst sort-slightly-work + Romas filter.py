@@ -107,8 +107,8 @@ def angle_of_point_by_ground(point_from_extended_point_cloud):
     a0_b_isk = b_isk - a0
 
     j = np.sum(a0_a_inf *  a0_b_isk)
-    m1 = np.linalg.norm(a0_a_inf)
-    m2 =np.linalg.norm(a0_b_isk)
+    m1 = la.norm(a0_a_inf)
+    m2 = la.norm(a0_b_isk)
 
 
     cos = j / (m1 * m2)
@@ -337,6 +337,7 @@ def mnkGP(x,y):
     return fp[0] , fp[1] , so
 
 
+
 ################################################################################
 
 
@@ -414,13 +415,25 @@ if __name__ == '__main__':
     ra_d.append(0)
     rrr = 0
     zz=[]
+    rasstoyanie_do_predidushei_tochki = 0
+    spisok_tochek_filtrovannah_po_tangensu = []
     while rrr+1 < len(y):
         yg.append ( abs(math.degrees( math.atan2(y[rrr+1] - y[rrr], x[rrr+1] - x[rrr]))) )
-        if -15 < ( math.degrees( math.atan2(y[rrr+1] - y[rrr], x[rrr+1] - x[rrr])) ) < 20 :
+        if -30 < ( math.degrees( math.atan2(y[rrr+1] - y[rrr], x[rrr+1] - x[rrr])) ) < 30 :
             zz.append(ff[rrr])
             print(angle_of_point_by_ground(t))
         else:
             zz.append([ff[rrr][0], ff[rrr][1], 7])
+            spisok_tochek_filtrovannah_po_tangensu.append([ff[rrr][0], ff[rrr][1], 7])
+
+            if len(spisok_tochek_filtrovannah_po_tangensu) > 1.775:
+                #print(spisok_tochek_filtrovannah_po_tangensu)
+                #print(spisok_tochek_filtrovannah_po_tangensu[len(spisok_tochek_filtrovannah_po_tangensu) - 1])
+                dist = la.norm(np.array(spisok_tochek_filtrovannah_po_tangensu[len(spisok_tochek_filtrovannah_po_tangensu) - 1]) - np.array(spisok_tochek_filtrovannah_po_tangensu[len(spisok_tochek_filtrovannah_po_tangensu) - 2]))
+                if dist > 1:
+                    print ('!!!!!!!!!!!!!! i had find a corridor !!!!!!!!!!!!!!',dist)
+                    zz.append([spisok_tochek_filtrovannah_po_tangensu[len(spisok_tochek_filtrovannah_po_tangensu) - 1][0],spisok_tochek_filtrovannah_po_tangensu[len(spisok_tochek_filtrovannah_po_tangensu) - 1][1] , 10])
+                    zz.append([spisok_tochek_filtrovannah_po_tangensu[len(spisok_tochek_filtrovannah_po_tangensu) - 2][0],spisok_tochek_filtrovannah_po_tangensu[len(spisok_tochek_filtrovannah_po_tangensu) - 2][1] , 10])
         rrr +=1
     #filtered = zz
     yg.append(0)
@@ -443,7 +456,8 @@ if __name__ == '__main__':
     draw_geometries([ring_cloud])
     dummy = []
     pcd_tree = KDTreeFlann(ring_cloud)
-    one_plane_points = zz
+#    one_plane_points = zz
+    one_plane_points = spisok_tochek_filtrovannah_po_tangensu
     kolichestvo_tochek_v_okresnosti =[]
     ori_tochki = []
     for point_of in one_plane_points:
@@ -451,16 +465,15 @@ if __name__ == '__main__':
         rt = 0
         kolichestvo_tochek_v_okresnosti.append(k)
         ori_tochki.append(ori(point_of))
-        if k > len(n_beams_filtered_cloud.points)*0.165:
+        if k > len(spisok_tochek_filtrovannah_po_tangensu)*0.165:
             dummy.append(point_of)
 
-        [k, idx, _] = pcd_tree.search_radius_vector_3d(point_of, 2.5)
-        rt = 0
-        kolichestvo_tochek_v_okresnosti.append(k)
-        ori_tochki.append(ori(point_of))
-        if k > len(n_beams_filtered_cloud.points)*0.165:
-            dummy.append(point_of)
-
+##        [k, idx, _] = pcd_tree.search_radius_vector_3d(point_of, 2.5)
+##        rt = 0
+##        kolichestvo_tochek_v_okresnosti.append(k)
+##        ori_tochki.append(ori(point_of))
+##        if k > len(n_beams_filtered_cloud.points)*0.165:
+##            dummy.append(point_of)
     #print(dummy)
     #plt.plot(ori_tochki, kolichestvo_tochek_v_okresnosti )
     #plt.show()
