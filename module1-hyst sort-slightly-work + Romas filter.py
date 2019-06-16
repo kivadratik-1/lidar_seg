@@ -348,7 +348,7 @@ if __name__ == '__main__':
     #print("Load a ply point cloud, print it, and render it")
     pcd = read_point_cloud('roadedges/'+file)
     #pcd = voxel_down_sample(pcd, voxel_size = 0.05)
-    #draw_geometries([pcd])
+    draw_geometries([pcd])
 
 
 
@@ -362,9 +362,9 @@ if __name__ == '__main__':
                             cutoff_by_z(
                                 massive_of_separated_ring_points(
                                     find_n_circle_1(pcd)[0]
-                                        ,2)
+                                        ,0)
                                     , -0.8)
-                                    , 2)
+                                    , 0)
     ff =[]
     x =[]
     y =[]
@@ -423,7 +423,7 @@ if __name__ == '__main__':
     list_of_index_tang_sort = []
     while rrr+1 < len(y):
         yg.append ( abs(math.degrees( math.atan2(y[rrr+1] - y[rrr], x[rrr+1] - x[rrr]))) )
-        if -30 < ( math.degrees( math.atan2(y[rrr+1] - y[rrr], x[rrr+1] - x[rrr])) ) < 30 :
+        if -40 < ( math.degrees( math.atan2(y[rrr+1] - y[rrr], x[rrr+1] - x[rrr])) ) < 40 :
             zz.append(ff[rrr])
             #print(angle_of_point_by_ground(t))
         else:
@@ -444,7 +444,7 @@ if __name__ == '__main__':
                     for ele in cut_mas:
                         clouds.append(ele)
                         raf = math.sqrt((ele[0])**2+(ele[1])**2+(ele[2] -1.83 )**2)
-                        print ('raf', raf)
+                        print ('z', ele[2])
 ##                    print (cut_mas)
 ##                    print('44444444444444444444444444!!!!!!!!!!!------------------',zz)
 ##                    print('44444444444444444444444444!!!!!!!!!!!',cut_mas)
