@@ -345,7 +345,7 @@ if __name__ == '__main__':
 
     file = '32-3.pcd'
 
-    print("Load a ply point cloud, print it, and render it")
+    #print("Load a ply point cloud, print it, and render it")
     pcd = read_point_cloud('roadedges/'+file)
     #pcd = voxel_down_sample(pcd, voxel_size = 0.05)
     #draw_geometries([pcd])
@@ -377,7 +377,7 @@ if __name__ == '__main__':
         y.append(t[2]*30)
         if 2.0 < angle_1 < 2.3 :
             ff.append(t)
-            print(angle_of_point_by_ground(t))
+            #print(angle_of_point_by_ground(t))
 
 
             #filtered.index(t)
@@ -393,21 +393,22 @@ if __name__ == '__main__':
         first_proizv_dx_po_dy = math.sqrt((ff[it+1][0]-ff[it][0])**2) / (math.sqrt((ff[it+1][1]-ff[it][1])**2) + 0.00000001)
         x_d.append ( math.sqrt((ff[it+1][2]-ff[it][2])**2 / abs( ori(ff[it+1] - ff[it]))) )
 
-        print(len(x_d))
-        print (len(y))
+        #print(len(x_d))
+        #print (len(y))
         ra = math.sqrt((ff[it][0])**2+(ff[it][1])**2+(ff[it][2] -1.83 )**2)
         ra_d.append(ra*10)
 ##        x.append(ori(ff[it]))
 ##        y.append(ff[it][2])
 
         it +=1
-        print (first_proizv_dz_po_dy)
+        #print (first_proizv_dz_po_dy)
 
         if (first_proizv_dx_po_dy < 2.5) and (first_proizv_dz_po_dy < 2.5 ) and (8.4 < ra < 8.7) :
                 ring_points_1.append(ff[it])
                 print('rad',ra)
     #filtered = ring_points_1
     zero_ring_cloud = PointCloud()
+    raf=0
     zero_ring_cloud.points = Vector3dVector(filtered)
     #zero_ring_cloud = voxel_down_sample(zero_ring_cloud, voxel_size = 0.05)
     #draw_geometries([zero_ring_cloud])
@@ -424,9 +425,9 @@ if __name__ == '__main__':
         yg.append ( abs(math.degrees( math.atan2(y[rrr+1] - y[rrr], x[rrr+1] - x[rrr]))) )
         if -30 < ( math.degrees( math.atan2(y[rrr+1] - y[rrr], x[rrr+1] - x[rrr])) ) < 30 :
             zz.append(ff[rrr])
-            print(angle_of_point_by_ground(t))
+            #print(angle_of_point_by_ground(t))
         else:
-            zz.append([ff[rrr][0], ff[rrr][1], 7])
+            zz.append(np.array([ff[rrr][0], ff[rrr][1], ff[rrr][2]]))
             spisok_tochek_filtrovannah_po_tangensu.append([ff[rrr][0], ff[rrr][1], ff[rrr][2]])
             list_of_index_tang_sort.append(rrr)
             if len(spisok_tochek_filtrovannah_po_tangensu) > 1:
@@ -434,29 +435,33 @@ if __name__ == '__main__':
                 #print(spisok_tochek_filtrovannah_po_tangensu[len(spisok_tochek_filtrovannah_po_tangensu) - 1])
                 dist = la.norm(np.array(spisok_tochek_filtrovannah_po_tangensu[- 1]) - np.array(spisok_tochek_filtrovannah_po_tangensu[- 2]))
                 if dist > 1.775:
-                    print ('!!!!!!!!!!!!!! i had find a corridor !!!!!!!!!!!!!!',dist)
-                    print(list(ff[rrr]))
-                    print(list(np.array(spisok_tochek_filtrovannah_po_tangensu[-1])) )
-                    print ('nom right', rrr)
-                    print ('nom left', list_of_index_tang_sort[-2])
+##                    print ('!!!!!!!!!!!!!! i had find a corridor !!!!!!!!!!!!!!',dist)
+##                    print(list(ff[rrr]))
+##                    print(list(np.array(spisok_tochek_filtrovannah_po_tangensu[-1])) )
+##                    print ('nom right', rrr)
+##                    print ('nom left', list_of_index_tang_sort[-2])
                     cut_mas = zz[list_of_index_tang_sort[-2]:rrr]
-                    clouds.append(cut_mas)
-                    print('44444444444444444444444444!!!!!!!!!!!------------------',zz)
-                    print('44444444444444444444444444!!!!!!!!!!!',cut_mas)
+                    for ele in cut_mas:
+                        clouds.append(ele)
+                        raf = math.sqrt((ele[0])**2+(ele[1])**2+(ele[2] -1.83 )**2)
+                        print ('raf', raf)
+##                    print (cut_mas)
+##                    print('44444444444444444444444444!!!!!!!!!!!------------------',zz)
+##                    print('44444444444444444444444444!!!!!!!!!!!',cut_mas)
                     zz.append([spisok_tochek_filtrovannah_po_tangensu[- 1][0],spisok_tochek_filtrovannah_po_tangensu[- 1][1] , spisok_tochek_filtrovannah_po_tangensu[- 1][2]])
                     zz.append([spisok_tochek_filtrovannah_po_tangensu[- 2][0],spisok_tochek_filtrovannah_po_tangensu[- 2][1] , spisok_tochek_filtrovannah_po_tangensu[- 2][2]])
 
         rrr +=1
-    print('______________list of indexes tan sort', list_of_index_tang_sort)
+    #print('______________list of indexes tan sort', list_of_index_tang_sort)
     #filtered = zz
     yg.append(0)
 
 
-    print( ra_d)
+    #print( ra_d)
     #print (y)
     #print(yg)
     plt.plot(x, y, linewidth=1)
-    print (y)
+    #print (y)
     #plt.plot(x, x_d )
     plt.plot(x, yg )
     plt.plot(x, ra_d )
@@ -491,7 +496,7 @@ if __name__ == '__main__':
     #plt.plot(ori_tochki, kolichestvo_tochek_v_okresnosti )
     #plt.show()
     dummy_cloud = PointCloud()
-    dummy_cloud.points = Vector3dVector(clouds[0])
+    dummy_cloud.points = Vector3dVector(clouds)
     n_beams_filtered_cloud.paint_uniform_color([0.7, 0.7, 0.7])
     pcd.paint_uniform_color([0.5, 0.5, 0.5])
     draw_geometries([dummy_cloud])
