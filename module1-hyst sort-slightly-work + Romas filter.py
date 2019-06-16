@@ -417,6 +417,9 @@ if __name__ == '__main__':
     zz=[]
     rasstoyanie_do_predidushei_tochki = 0
     spisok_tochek_filtrovannah_po_tangensu = []
+    cut_mas = []
+    clouds = []
+    list_of_index_tang_sort = []
     while rrr+1 < len(y):
         yg.append ( abs(math.degrees( math.atan2(y[rrr+1] - y[rrr], x[rrr+1] - x[rrr]))) )
         if -30 < ( math.degrees( math.atan2(y[rrr+1] - y[rrr], x[rrr+1] - x[rrr])) ) < 30 :
@@ -424,17 +427,27 @@ if __name__ == '__main__':
             print(angle_of_point_by_ground(t))
         else:
             zz.append([ff[rrr][0], ff[rrr][1], 7])
-            spisok_tochek_filtrovannah_po_tangensu.append([ff[rrr][0], ff[rrr][1], 7])
-
-            if len(spisok_tochek_filtrovannah_po_tangensu) > 1.775:
+            spisok_tochek_filtrovannah_po_tangensu.append([ff[rrr][0], ff[rrr][1], ff[rrr][2]])
+            list_of_index_tang_sort.append(rrr)
+            if len(spisok_tochek_filtrovannah_po_tangensu) > 1:
                 #print(spisok_tochek_filtrovannah_po_tangensu)
                 #print(spisok_tochek_filtrovannah_po_tangensu[len(spisok_tochek_filtrovannah_po_tangensu) - 1])
-                dist = la.norm(np.array(spisok_tochek_filtrovannah_po_tangensu[len(spisok_tochek_filtrovannah_po_tangensu) - 1]) - np.array(spisok_tochek_filtrovannah_po_tangensu[len(spisok_tochek_filtrovannah_po_tangensu) - 2]))
-                if dist > 1:
+                dist = la.norm(np.array(spisok_tochek_filtrovannah_po_tangensu[- 1]) - np.array(spisok_tochek_filtrovannah_po_tangensu[- 2]))
+                if dist > 1.775:
                     print ('!!!!!!!!!!!!!! i had find a corridor !!!!!!!!!!!!!!',dist)
-                    zz.append([spisok_tochek_filtrovannah_po_tangensu[len(spisok_tochek_filtrovannah_po_tangensu) - 1][0],spisok_tochek_filtrovannah_po_tangensu[len(spisok_tochek_filtrovannah_po_tangensu) - 1][1] , 10])
-                    zz.append([spisok_tochek_filtrovannah_po_tangensu[len(spisok_tochek_filtrovannah_po_tangensu) - 2][0],spisok_tochek_filtrovannah_po_tangensu[len(spisok_tochek_filtrovannah_po_tangensu) - 2][1] , 10])
+                    print(list(ff[rrr]))
+                    print(list(np.array(spisok_tochek_filtrovannah_po_tangensu[-1])) )
+                    print ('nom right', rrr)
+                    print ('nom left', list_of_index_tang_sort[-2])
+                    cut_mas = zz[list_of_index_tang_sort[-2]:rrr]
+                    clouds.append(cut_mas)
+                    print('44444444444444444444444444!!!!!!!!!!!------------------',zz)
+                    print('44444444444444444444444444!!!!!!!!!!!',cut_mas)
+                    zz.append([spisok_tochek_filtrovannah_po_tangensu[- 1][0],spisok_tochek_filtrovannah_po_tangensu[- 1][1] , spisok_tochek_filtrovannah_po_tangensu[- 1][2]])
+                    zz.append([spisok_tochek_filtrovannah_po_tangensu[- 2][0],spisok_tochek_filtrovannah_po_tangensu[- 2][1] , spisok_tochek_filtrovannah_po_tangensu[- 2][2]])
+
         rrr +=1
+    print('______________list of indexes tan sort', list_of_index_tang_sort)
     #filtered = zz
     yg.append(0)
 
@@ -478,7 +491,7 @@ if __name__ == '__main__':
     #plt.plot(ori_tochki, kolichestvo_tochek_v_okresnosti )
     #plt.show()
     dummy_cloud = PointCloud()
-    dummy_cloud.points = Vector3dVector(dummy)
+    dummy_cloud.points = Vector3dVector(clouds[0])
     n_beams_filtered_cloud.paint_uniform_color([0.7, 0.7, 0.7])
     pcd.paint_uniform_color([0.5, 0.5, 0.5])
     draw_geometries([dummy_cloud])
